@@ -106,27 +106,34 @@ class RummyCubesGame:
                 break
 
             new_tile_set = []
-            for p_id in move:
-                print("\t" + str(p_id))
-                if new_player_hand[p_id]:
-                    new_tile_set.append(new_player_hand[p_id])
-                    new_player.remove_tile(p_id)
-                else:
-                    on_board = False
+            for tile_id in move:
+                if not valid_move:
+                    break
 
+                print("\t" + str(tile_id))
+                tile_in_hand = False
+                tile_on_board = False
+
+                # Check if the tile is in the player's hand
+                if new_player.has_tile(tile_id):
+                    new_tile_set.append(new_player.get_tile(tile_id))
+                    new_player.remove_tile(tile_id)
+                    tile_in_hand = True
+                # Check if the tile is on the board
+                else:
                     for i, tile_set in enumerate(new_board):
                         for j, tile in enumerate(tile_set):
-                            if tile['id'] == p_id:
-                                on_board = True
+                            if tile['id'] == tile_id:
+                                tile_on_board = True
                                 new_tile_set.append(tile)
                                 del new_board[i][j]
                                 break
-                        if on_board:
+                        if tile_on_board:
                             break
 
-                    if not on_board:
-                        valid_move = False
-                        break
+                if not tile_in_hand and not tile_on_board:
+                    valid_move = False
+
             if valid_move:
                 new_board.append(new_tile_set)
 
@@ -203,6 +210,15 @@ class RummyCubesPlayer:
 
     def add_tile(self, tile):
         self.hand[tile['id']] = tile
+
+    def has_tile(self, tile_id):
+        if self.hand[tile_id]:
+            return True
+        else:
+            return False
+
+    def get_tile(self, tile_id):
+        return self.hand[tile_id]
 
     def print_hand(self):
         print("Player Hand: ")
