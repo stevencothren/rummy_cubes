@@ -3,12 +3,12 @@ from importlib import import_module
 from random import shuffle
 
 from rummy_cubes_player import RummyCubesPlayer
-
+from rummy_cubes_board import RummyCubesBoard
 
 class RummyCubesGame:
     def __init__(self, num_players):
         self.players = []
-        self.board = []
+        self.board = RummyCubesBoard()
         self.bag = []
         self.game_over = False
         self.winner = -1
@@ -24,7 +24,7 @@ class RummyCubesGame:
 
                 print(player_name + "'s turn")
                 player.print_hand()
-                player_moves = player.move(deepcopy(self.board))
+                player_moves = player.move(self.board.get_board())
 
                 # Player gave no actions, so is drawing a tile
                 if not player_moves:
@@ -98,7 +98,7 @@ class RummyCubesGame:
 
     def process_move(self, player_idx, player_moves):
         new_player = deepcopy(self.players[player_idx])
-        new_board = deepcopy(self.board)
+        new_board = deepcopy(self.board.get_board())
         new_player_hand = new_player.get_player_hand()
         valid_move = True
 
@@ -190,6 +190,6 @@ class RummyCubesGame:
 
         if valid_move:
             self.players[player_idx] = new_player
-            self.board = new_board
+            self.board.set_board(new_board)
 
         return valid_move

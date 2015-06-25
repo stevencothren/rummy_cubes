@@ -7,7 +7,8 @@ class RummyCubesPlayer:
         self.first_move = True
 
     def move(self, board):
-        return self.ai(board, deepcopy(self.hand), self.first_move)
+        # TODO: Can the player AI change first_move?
+        return self.ai(deepcopy(board), deepcopy(self.hand), self.first_move)
 
     def get_player_hand(self):
         return deepcopy(self.hand)
