@@ -5,6 +5,7 @@ from random import shuffle
 from rummy_cubes_player import RummyCubesPlayer
 from rummy_cubes_board import RummyCubesBoard
 
+
 class RummyCubesGame:
     def __init__(self, num_players):
         self.players = []
@@ -13,6 +14,8 @@ class RummyCubesGame:
         self.game_over = False
         self.winner = -1
         self.initialize_game(num_players)
+
+        self.minimum_first_move_points = 30
 
     def run(self):
         while not self.game_over:
@@ -98,98 +101,46 @@ class RummyCubesGame:
 
     def process_move(self, player_idx, player_moves):
         new_player = deepcopy(self.players[player_idx])
-        new_board = deepcopy(self.board.get_board())
-        new_player_hand = new_player.get_player_hand()
+        new_board = deepcopy(self.board)
+        move_point_total = 0
         valid_move = True
 
         print("Player moves : ")
         for move in player_moves:
-            if not valid_move:
-                break
-
             new_tile_set = []
             for tile_id in move:
-                if not valid_move:
-                    break
-
                 print("\t" + str(tile_id))
-                tile_in_hand = False
-                tile_on_board = False
-
                 # Check if the tile is in the player's hand
                 if new_player.has_tile(tile_id):
-                    new_tile_set.append(new_player.get_tile(tile_id))
-                    new_player.remove_tile(tile_id)
-                    tile_in_hand = True
+                    move_point_total += new_player.get_tile_value(tile_id)
+                    new_tile_set.append(new_player.pop_tile(tile_id))
                 # Check if the tile is on the board
+                elif new_board.has_tile(tile_id):
+                    new_tile_set.append((new_board.pop_tile(tile_id)))
                 else:
-                    for i, tile_set in enumerate(new_board):
-                        for j, tile in enumerate(tile_set):
-                            if tile['id'] == tile_id:
-                                tile_on_board = True
-                                new_tile_set.append(tile)
-                                del new_board[i][j]
-                                break
-                        if tile_on_board:
-                            break
-
-                if not tile_in_hand and not tile_on_board:
                     valid_move = False
-
+                    break
             if valid_move:
-                new_board.append(new_tile_set)
-
-        for i, tile_set in enumerate(new_board):
-            if not valid_move:
+                new_board.add_tile_set(new_tile_set)
+            else:
                 break
 
-            if len(tile_set) == 0:
-                del new_board[i]
-            elif len(tile_set) < 3:
-                valid_move = False
-            else:
-                valid_set = True
-                valid_run = True
-
-                set_value = -1
-                run_values = []
-                tile_suits = {}
-
-                for tile in tile_set:
-                    if set_value == -1:
-                        set_value = tile['value']
-                    elif tile['value'] != set_value:
-                        valid_set = False
-
-                    if tile['suit'] in tile_suits:
-                        valid_set = False
-                    else:
-                        tile_suits[tile['suit']] = 1
-
-                    run_values.append(tile['value'])
-
-                if not valid_set:
-                    if len(tile_suits) > 1:
-                        valid_run = False
-                    else:
-                        sorted_values = sorted(run_values)
-                        cur_val = -1
-                        for value in sorted_values:
-                            if cur_val == -1:
-                                cur_val = value
-                            elif value == cur_val + 1:
-                                cur_val = value
-                            else:
-                                valid_run = False
-                                break
-
-                if not valid_set and not valid_run:
-                    valid_move = False
-
-        print("Valid: " + str(valid_move))
+        new_board.remove_empty_tile_sets()
 
         if valid_move:
+            if not new_board.is_valid():
+                valid_move = False
+            elif new_player.is_first_move():
+                if move_point_total >= self.minimum_first_move_points:
+                    new_player.first_move_made()
+                else:
+                    valid_move = False
+
+        if valid_move:
+            print("Move is Valid")
             self.players[player_idx] = new_player
             self.board.set_board(new_board)
+        else:
+            print("Move is NOT Valid")
 
         return valid_move

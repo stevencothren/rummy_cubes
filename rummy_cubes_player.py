@@ -28,6 +28,20 @@ class RummyCubesPlayer:
     def get_tile(self, tile_id):
         return self.hand[tile_id]
 
+    def get_tile_value(self, tile_id):
+        return self.hand[tile_id]['value']
+
+    def pop_tile(self, tile_id):
+        tile = self.hand[tile_id]
+        del self.hand[tile_id]
+        return tile
+
+    def is_first_move(self):
+        return self.first_move
+
+    def first_move_made(self):
+        self.first_move = False
+
     def print_hand(self):
         print("Player Hand: ")
         for tile_id in self.hand:
