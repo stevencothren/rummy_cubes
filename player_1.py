@@ -10,7 +10,7 @@ def player_ai(game_board, player_hand, first_move):
 
     # Create a 4 x 13 array with the values of the tiles in the player's hand
     # Ignores the possibility of duplicate tiles
-    hand = [[None for x in range(13)] for x in range(4)]
+    hand = [[None for _ in range(13)] for _ in range(4)]
     for tile_id in player_hand:
         tile = player_hand[tile_id]
         if tile['suit'] == "Black":
@@ -69,7 +69,80 @@ def player_ai(game_board, player_hand, first_move):
             hand[tile[0]][tile[1]] = None
         moves.append(run_move)
 
+    # Look for tiles in the player's hand that can be played on an existing tile set
+    for tile_set in game_board:
+        if is_set(tile_set):
+            set_suits = {}
+            set_value = tile_set[0]['value']
+            tile_set_ids = []
+
+            for tile in tile_set:
+                set_suits[tile['suit']] = 1
+                tile_set_ids.append(tile['id'])
+
+            tile_to_add = None
+
+            if 'Black' not in set_suits and hand[0][set_value - 1]:
+                tile_to_add = [0, set_value - 1]
+            elif 'Blue' not in set_suits and hand[1][set_value - 1]:
+                tile_to_add = [1, set_value - 1]
+            elif not 'Red' not in set_suits and hand[2][set_value - 1]:
+                tile_to_add = [2, set_value - 1]
+            elif not 'Yellow' not in set_suits and hand[3][set_value - 1]:
+                tile_to_add = [3, set_value - 1]
+
+            if tile_to_add:
+                tile_set_ids.append(hand[tile_to_add[0]][tile_to_add[1]]['id'])
+                move_point_total += hand[tile_to_add[0]][tile_to_add[1]]['value']
+                hand[tile_to_add[0]][tile_to_add[1]] = None
+                moves.append(tile_set_ids)
+
     if first_move and move_point_total < 30:
         moves = []
 
     return moves
+
+
+def is_set(tile_set):
+    valid_set = True
+    set_value = -1
+    tile_suits = {}
+
+    for tile in tile_set:
+        if set_value == -1:
+            set_value = tile['value']
+        elif tile['value'] != set_value:
+            valid_set = False
+
+        if tile['suit'] in tile_suits:
+            valid_set = False
+        else:
+            tile_suits[tile['suit']] = 1
+
+    return valid_set
+
+
+def is_run(tile_set):
+    valid_run = True
+    run_values = []
+    tile_suits = {}
+
+    for tile in tile_set:
+        run_values.append(tile['value'])
+        tile_suits[tile['suit']] = 1
+
+    if len(tile_suits) > 1:
+        valid_run = False
+    else:
+        sorted_values = sorted(run_values)
+        cur_val = -1
+        for value in sorted_values:
+            if cur_val == -1:
+                cur_val = value
+            elif value == cur_val + 1:
+                cur_val = value
+            else:
+                valid_run = False
+                break
+
+    return valid_run

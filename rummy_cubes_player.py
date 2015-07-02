@@ -20,10 +20,7 @@ class RummyCubesPlayer:
         self.hand[tile['id']] = tile
 
     def has_tile(self, tile_id):
-        if self.hand[tile_id]:
-            return True
-        else:
-            return False
+        return tile_id in self.hand
 
     def get_tile(self, tile_id):
         return self.hand[tile_id]

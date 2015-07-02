@@ -18,6 +18,7 @@ class RummyCubesGame:
         self.minimum_first_move_points = 30
 
     def run(self):
+        temp_game_over_counter = 0
         while not self.game_over:
             for player_idx, player in enumerate(self.players):
                 if self.game_over:
@@ -26,6 +27,7 @@ class RummyCubesGame:
                 player_name = "Player " + str(player_idx + 1)
 
                 print(player_name + "'s turn")
+                self.board.print_board()
                 player.print_hand()
                 player_moves = player.move(self.board.get_board())
 
@@ -50,8 +52,11 @@ class RummyCubesGame:
                     self.winner = player_idx + 1
                     self.game_over = True
 
-            self.game_over = True
-            self.winner = 1
+            if temp_game_over_counter == 1:
+                self.game_over = True
+                self.winner = 1
+            else:
+                temp_game_over_counter += 1
 
         print("Winner is player " + str(self.winner))
 
@@ -139,7 +144,7 @@ class RummyCubesGame:
         if valid_move:
             print("Move is Valid")
             self.players[player_idx] = new_player
-            self.board.set_board(new_board)
+            self.board = new_board
         else:
             print("Move is NOT Valid")
 

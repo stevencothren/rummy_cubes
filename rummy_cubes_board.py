@@ -109,3 +109,13 @@ class RummyCubesBoard:
                     break
 
         return valid_run
+
+    def print_board(self):
+        print("Current Board")
+        for i, tile_set in enumerate(self.board):
+            print("[")
+            for tile in tile_set:
+                print("\t" + str(tile['id']) + " : " + tile['suit'] + " : " + str(tile['value']))
+            print("]")
+
+        return
