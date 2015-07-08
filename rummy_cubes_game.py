@@ -17,6 +17,54 @@ class RummyCubesGame:
 
         self.minimum_first_move_points = 30
 
+    def initialize_game(self, num_players):
+        self.generate_tile_bag()
+
+        for player_num in range(num_players):
+            player_hand = self.draw_initial_hand()
+            player_module = import_module("player_" + str(player_num + 1))
+            ai = getattr(player_module, "player_ai")
+            self.players.append(RummyCubesPlayer(player_hand, ai))
+
+    def generate_tile_bag(self):
+        # 106 tiles with 2 Jokers
+        # tile_ids = list(range(1, 107))
+        # 106 tiles, no jokers
+        tile_ids = list(range(1, 105))
+        shuffle(tile_ids)
+
+        for value in range(1, 14):
+            for suit in ["Black", "Blue", "Red", "Yellow"]:
+                self.bag.append({'id': tile_ids.pop(),
+                                 'suit': suit,
+                                 'value': value})
+                self.bag.append({'id': tile_ids.pop(),
+                                 'suit': suit,
+                                 'value': value})
+
+        # Two Jokers
+        # TODO: Jokers are disabled for now
+        # Need to add logic into the rummy_cubes_board to deal with them
+        # self.bag.append({'id': tile_ids.pop(),
+        #                 'suit': "Joker",
+        #                 'value': -1})
+        # self.bag.append({'id': tile_ids.pop(),
+        #                 'suit': "Joker",
+        #                 'value': -1})
+
+        shuffle(self.bag)
+        return
+
+    def draw_initial_hand(self):
+        hand = {}
+        for _ in range(14):
+            tile = self.draw_tile()
+            hand[tile['id']] = tile
+        return hand
+
+    def draw_tile(self):
+        return self.bag.pop()
+
     def run(self):
         while not self.game_over:
             player_action_count = 0
@@ -67,54 +115,6 @@ class RummyCubesGame:
                         self.winner = player_idx + 1
 
         print("Winner is player " + str(self.winner))
-
-    def initialize_game(self, num_players):
-        self.generate_tile_bag()
-
-        for player_num in range(num_players):
-            player_hand = self.draw_initial_hand()
-            player_module = import_module("player_" + str(player_num + 1))
-            ai = getattr(player_module, "player_ai")
-            self.players.append(RummyCubesPlayer(player_hand, ai))
-
-    def generate_tile_bag(self):
-        # 106 tiles with 2 Jokers
-        # tile_ids = list(range(1, 107))
-        # 106 tiles, no jokers
-        tile_ids = list(range(1,105))
-        shuffle(tile_ids)
-
-        for value in range(1, 14):
-            for suit in ["Black", "Blue", "Red", "Yellow"]:
-                self.bag.append({'id': tile_ids.pop(),
-                                 'suit': suit,
-                                 'value': value})
-                self.bag.append({'id': tile_ids.pop(),
-                                 'suit': suit,
-                                 'value': value})
-
-        # Two Jokers
-        # TODO: Jokers are disabled for now
-        # Need to add logic into the rummy_cubes_board to deal with them
-        # self.bag.append({'id': tile_ids.pop(),
-        #                 'suit': "Joker",
-        #                 'value': -1})
-        # self.bag.append({'id': tile_ids.pop(),
-        #                 'suit': "Joker",
-        #                 'value': -1})
-
-        shuffle(self.bag)
-        return
-
-    def draw_initial_hand(self):
-        hand = {}
-        for _ in range(14):
-            tile = self.draw_tile()
-            hand[tile['id']] = tile
-        return hand
-
-    def draw_tile(self):
-        return self.bag.pop()
 
     def process_move(self, player_idx, player_moves):
         new_player = deepcopy(self.players[player_idx])
