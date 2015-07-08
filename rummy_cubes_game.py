@@ -16,6 +16,7 @@ class RummyCubesGame:
         self.initialize_game(num_players)
 
         self.minimum_first_move_points = 30
+        self.initial_hand_size = 14
 
     def initialize_game(self, num_players):
         self.generate_tile_bag()
@@ -57,7 +58,7 @@ class RummyCubesGame:
 
     def draw_initial_hand(self):
         hand = {}
-        for _ in range(14):
+        for _ in range(self.initial_hand_size):
             tile = self.draw_tile()
             hand[tile['id']] = tile
         return hand
