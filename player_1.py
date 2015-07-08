@@ -86,9 +86,9 @@ def player_ai(game_board, player_hand, first_move):
                 tile_to_add = [0, set_value - 1]
             elif 'Blue' not in set_suits and hand[1][set_value - 1]:
                 tile_to_add = [1, set_value - 1]
-            elif not 'Red' not in set_suits and hand[2][set_value - 1]:
+            elif 'Red' not in set_suits and hand[2][set_value - 1]:
                 tile_to_add = [2, set_value - 1]
-            elif not 'Yellow' not in set_suits and hand[3][set_value - 1]:
+            elif 'Yellow' not in set_suits and hand[3][set_value - 1]:
                 tile_to_add = [3, set_value - 1]
 
             if tile_to_add:

@@ -18,7 +18,6 @@ class RummyCubesGame:
         self.minimum_first_move_points = 30
 
     def run(self):
-        temp_game_over_counter = 0
         while not self.game_over:
             for player_idx, player in enumerate(self.players):
                 if self.game_over:
@@ -52,11 +51,10 @@ class RummyCubesGame:
                     self.winner = player_idx + 1
                     self.game_over = True
 
-            if temp_game_over_counter == 1:
-                self.game_over = True
-                self.winner = 1
-            else:
-                temp_game_over_counter += 1
+                # TODO: Should allow play to continue until no one is making moves
+                if len(self.bag) == 0:
+                    self.game_over = True
+                    self.winner = 1
 
         print("Winner is player " + str(self.winner))
 
@@ -71,7 +69,9 @@ class RummyCubesGame:
 
     def generate_tile_bag(self):
         # 106 tiles with 2 Jokers
-        tile_ids = list(range(1, 107))
+        # tile_ids = list(range(1, 107))
+        # 106 tiles, no jokers
+        tile_ids = list(range(1,105))
         shuffle(tile_ids)
 
         for value in range(1, 14):
@@ -84,12 +84,14 @@ class RummyCubesGame:
                                  'value': value})
 
         # Two Jokers
-        self.bag.append({'id': tile_ids.pop(),
-                         'suit': "Joker",
-                         'value': -1})
-        self.bag.append({'id': tile_ids.pop(),
-                         'suit': "Joker",
-                         'value': -1})
+        # TODO: Jokers are disabled for now
+        # Need to add logic into the rummy_cubes_board to deal with them
+        #self.bag.append({'id': tile_ids.pop(),
+        #                 'suit': "Joker",
+        #                 'value': -1})
+        #self.bag.append({'id': tile_ids.pop(),
+        #                 'suit': "Joker",
+        #                 'value': -1})
 
         shuffle(self.bag)
         return
