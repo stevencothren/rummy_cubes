@@ -19,6 +19,7 @@ class RummyCubesGame:
 
     def run(self):
         while not self.game_over:
+            player_action_count = 0
             for player_idx, player in enumerate(self.players):
                 if self.game_over:
                     break
@@ -33,6 +34,7 @@ class RummyCubesGame:
                 # Player gave no actions, so is drawing a tile
                 if not player_moves:
                     player.add_tile(self.draw_tile())
+                    player_action_count += 1
                     print("\tDrew a Tile")
                     player.print_hand()
                 else:
@@ -40,6 +42,7 @@ class RummyCubesGame:
                     if self.process_move(player_idx, player_moves):
                         # TODO: Fix this nastiness!
                         player = self.players[player_idx]
+                        player_action_count += 1
                         print("\tMoves Successful")
                     else:
                         player.add_tile(self.draw_tile())
@@ -51,10 +54,17 @@ class RummyCubesGame:
                     self.winner = player_idx + 1
                     self.game_over = True
 
-                # TODO: Should allow play to continue until no one is making moves
-                if len(self.bag) == 0:
-                    self.game_over = True
-                    self.winner = 1
+            # No more tiles and no moves or draws during the last round
+            if len(self.bag) == 0 and player_action_count == 0:
+                self.game_over = True
+                winner_tile_count = 0
+                for player_idx, player in enumerate(self.players):
+                    if winner_tile_count == -1:
+                        winner_tile_count = len(player.get_player_hand)
+                        self.winner = player_idx + 1
+                    elif len(player.get_player_hand) < winner_tile_count:
+                        winner_tile_count = len(player.get_player_hand)
+                        self.winner = player_idx + 1
 
         print("Winner is player " + str(self.winner))
 
@@ -86,10 +96,10 @@ class RummyCubesGame:
         # Two Jokers
         # TODO: Jokers are disabled for now
         # Need to add logic into the rummy_cubes_board to deal with them
-        #self.bag.append({'id': tile_ids.pop(),
+        # self.bag.append({'id': tile_ids.pop(),
         #                 'suit': "Joker",
         #                 'value': -1})
-        #self.bag.append({'id': tile_ids.pop(),
+        # self.bag.append({'id': tile_ids.pop(),
         #                 'suit': "Joker",
         #                 'value': -1})
 
