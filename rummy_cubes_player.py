@@ -1,7 +1,8 @@
 from copy import deepcopy
 
 class RummyCubesPlayer:
-    def __init__(self, player_hand, player_ai):
+    def __init__(self, player_number, player_hand, player_ai):
+        self.name = "Player " + str(player_number)
         self.hand = player_hand
         self.ai = player_ai
         self.first_move = True

@@ -8,15 +8,15 @@ from rummy_cubes_board import RummyCubesBoard
 
 class RummyCubesGame:
     def __init__(self, num_players):
+        self.minimum_first_move_points = 30
+        self.initial_hand_size = 14
+
         self.players = []
         self.board = RummyCubesBoard()
         self.bag = []
         self.game_over = False
-        self.winner = -1
+        self.winner = "No One"
         self.initialize_game(num_players)
-
-        self.minimum_first_move_points = 30
-        self.initial_hand_size = 14
 
     def initialize_game(self, num_players):
         self.generate_tile_bag()
@@ -25,7 +25,7 @@ class RummyCubesGame:
             player_hand = self.draw_initial_hand()
             player_module = import_module("player_" + str(player_num + 1))
             ai = getattr(player_module, "player_ai")
-            self.players.append(RummyCubesPlayer(player_hand, ai))
+            self.players.append(RummyCubesPlayer(player_num + 1, player_hand, ai))
 
     def generate_tile_bag(self):
         # 106 tiles with 2 Jokers
@@ -73,49 +73,51 @@ class RummyCubesGame:
                 if self.game_over:
                     break
 
-                player_name = "Player " + str(player_idx + 1)
-
-                print(player_name + "'s turn")
+                print(player.name + "'s turn")
                 self.board.print_board()
                 player.print_hand()
+
                 player_moves = player.move(self.board.get_board())
 
-                # Player gave no actions, so is drawing a tile
-                if not player_moves:
-                    player.add_tile(self.draw_tile())
-                    player_action_count += 1
-                    print("\tDrew a Tile")
-                    player.print_hand()
-                else:
-                    print("Processing Player " + player_name + " Moves")
-                    if self.process_move(player_idx, player_moves):
+                valid_move = False
+                if player_moves:
+                    print("Processing " + player.name + "'s Moves")
+                    valid_move = self.process_move(player_idx, player_moves)
+                    if valid_move:
                         # TODO: Fix this nastiness!
                         player = self.players[player_idx]
                         player_action_count += 1
                         print("\tMoves Successful")
                     else:
-                        player.add_tile(self.draw_tile())
-                        print("\tInvalid Player Actions - Draw Tile")
+                        print("\tInvalid Player Actions")
 
-                    player.print_hand()
+                if not player_moves or not valid_move:
+                    print("\tDrawing a tile")
+                    if len(self.bag) > 0:
+                        player.add_tile(self.draw_tile())
+                        player_action_count += 1
+                    else:
+                        print("\t\tNo Tiles Left To Draw")
+
+                player.print_hand()
 
                 if len(player.get_player_hand()) == 0:
-                    self.winner = player_idx + 1
+                    self.winner = player.name
                     self.game_over = True
 
             # No more tiles and no moves or draws during the last round
             if len(self.bag) == 0 and player_action_count == 0:
                 self.game_over = True
-                winner_tile_count = 0
-                for player_idx, player in enumerate(self.players):
+                winner_tile_count = -1
+                for player in self.players:
                     if winner_tile_count == -1:
-                        winner_tile_count = len(player.get_player_hand)
-                        self.winner = player_idx + 1
-                    elif len(player.get_player_hand) < winner_tile_count:
-                        winner_tile_count = len(player.get_player_hand)
-                        self.winner = player_idx + 1
+                        winner_tile_count = len(player.get_player_hand())
+                        self.winner = player.name
+                    elif len(player.get_player_hand()) < winner_tile_count:
+                        winner_tile_count = len(player.get_player_hand())
+                        self.winner = player.name
 
-        print("Winner is player " + str(self.winner))
+        print("Winner is " + self.winner)
 
     def process_move(self, player_idx, player_moves):
         new_player = deepcopy(self.players[player_idx])
