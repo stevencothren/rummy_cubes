@@ -97,6 +97,38 @@ def player_ai(game_board, player_hand, first_move):
                 hand[tile_to_add[0]][tile_to_add[1]] = None
                 moves.append(tile_set_ids)
 
+        elif is_run(tile_set):
+            run_suit = tile_set[0]['suit']
+            run_lowest = tile_set[0]['value']
+            run_highest = tile_set[-1]['value']
+            tile_set_ids = []
+
+            for tile in tile_set:
+                tile_set_ids.append(tile['id'])
+
+            suit_value = -1
+            if run_suit == 'Black':
+                suit_value = 0
+            elif run_suit == 'Blue':
+                suit_value = 1
+            elif run_suit == 'Red':
+                suit_value = 2
+            elif run_suit == 'Yellow':
+                suit_value = 3
+
+            if run_lowest > 1 and hand[suit_value][run_lowest - 2]:
+                tile_set_ids.insert(0, hand[suit_value][run_lowest - 2]['id'])
+                move_point_total += hand[suit_value][run_lowest - 2]['value']
+                hand[suit_value][run_lowest - 2] = None
+
+            if run_highest < 13 and hand[suit_value][run_highest]:
+                tile_set_ids.append(hand[suit_value][run_highest]['id'])
+                move_point_total += hand[suit_value][run_highest]['value']
+                hand[suit_value][run_highest] = None
+
+            if len(tile_set_ids) > len(tile_set):
+                moves.append(tile_set_ids)
+
     if first_move and move_point_total < 30:
         moves = []
 

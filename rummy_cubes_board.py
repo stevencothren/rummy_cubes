@@ -47,9 +47,7 @@ class RummyCubesBoard:
         return
 
     def remove_empty_tile_sets(self):
-        for i, tile_set in enumerate(self.board):
-            if len(tile_set) == 0:
-                del self.board[i]
+        self.board = [tile_set for tile_set in self.board if tile_set != []]
         return
 
     def is_valid(self):
